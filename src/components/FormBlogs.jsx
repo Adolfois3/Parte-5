@@ -1,6 +1,4 @@
-
-
-export const FormBlogs = ({Submit,FormChange,blogForms}) => {
+const FormBlogs = ({Submit,FormChange,blogForms}) => {
   return (
       <div>
         <div>
@@ -8,15 +6,33 @@ export const FormBlogs = ({Submit,FormChange,blogForms}) => {
           <form onSubmit={Submit}>
             <div>
               <label htmlFor="title">Title</label>
-              <input type="text" name="title" onChange={FormChange} value={blogForms.title} />
+              <input 
+                type="text" 
+                name="title" 
+                onChange={FormChange} 
+                value={blogForms.title} 
+                data-testid='title'
+              />
             </div>
             <div>
               <label htmlFor="author">Author</label>
-              <input type="text" name="author" onChange={FormChange} value={blogForms.author} />
+              <input 
+                type="text" 
+                name="author" 
+                onChange={FormChange} 
+                value={blogForms.author} 
+                data-testid='author'
+              />
             </div>
             <div>
               <label htmlFor="url">Url</label>
-              <input type="text" name="url" onChange={FormChange} value={blogForms.url} />
+              <input 
+                type="text" 
+                name="url" 
+                onChange={FormChange} 
+                value={blogForms.url} 
+                data-testid='url'
+              />
             </div>
             <button type="submit">
               Create
@@ -26,4 +42,5 @@ export const FormBlogs = ({Submit,FormChange,blogForms}) => {
           </div>
   )
 }
+export default FormBlogs
 

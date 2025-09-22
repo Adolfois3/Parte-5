@@ -3,6 +3,7 @@ import globals from 'globals'
 import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
+import jest from 'eslint-plugin-jest' // Importa el plugin de Jest
 
 export default [
   { ignores: ['dist'] },
@@ -36,4 +37,22 @@ export default [
       'react/prop-types': 0,
     },
   },
-]
+  // Configuración específica para los archivos de prueba
+  {
+    files: ['**/*.test.js', '**/*.test.jsx'],
+    languageOptions: {
+      // Agrega las variables globales de Jest/Vitest
+      globals: {
+        ...globals.browser,
+        ...globals.jest,
+      },
+    },
+    plugins: {
+      jest: jest,
+    },
+    rules: {
+      ...jest.configs.recommended.rules,
+      'no-unused-vars': 'off', // Desactiva la regla en los tests
+    },
+  },
+];

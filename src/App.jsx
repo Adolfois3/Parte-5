@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Blogs from './services/Blogs'
 import Login from './services/Login'
-import { FormBlogs } from './components/FormBlogs'
+import  FormBlogs  from './components/FormBlogs'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -48,6 +48,7 @@ const App = () => {
     }
   }, [])
 
+
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
@@ -57,6 +58,7 @@ const App = () => {
       ) 
       Blogs.setToken(users.token)
       setUser(users)
+     
       setPassword('')
       setUsername('')
       setSuccessMessage(`¡Bienvenido, ${users.username}! Has iniciado sesión con éxito.`)
@@ -71,6 +73,7 @@ const App = () => {
       }, 5000)
     }
   }
+    
 
   const handleLogout = () => {
     window.localStorage.removeItem('loggedNoteappUser')
@@ -226,11 +229,6 @@ const deleteBlog = async (blogDelete) => {
 };
 
 
-
-
-
-
-
   const getBlog = () => {
     const sortedBlog = [...blogs].sort((a,b)=> b.likes - a.likes)
 
@@ -251,7 +249,7 @@ const deleteBlog = async (blogDelete) => {
             </div>
             {sortedBlog.map(blog =>
             
-              <Blog key={blog.id} blog={blog} buttState={'view'} likes={()=> likesUpdate(blog)} delet={()=> {setBlogToDelete(blog); setShowConfirmModal(true)}} />
+              <Blog key={blog.id} blog={blog}  likes={()=> likesUpdate(blog)} delet={()=> {setBlogToDelete(blog); setShowConfirmModal(true)}} />
               
             )}
             {showConfirmModal &&(
