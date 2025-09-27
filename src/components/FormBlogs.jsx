@@ -12,6 +12,8 @@ const FormBlogs = ({Submit,FormChange,blogForms}) => {
                 onChange={FormChange} 
                 value={blogForms.title} 
                 data-testid='title'
+                placeholder="Title"
+                
               />
             </div>
             <div>
@@ -22,6 +24,7 @@ const FormBlogs = ({Submit,FormChange,blogForms}) => {
                 onChange={FormChange} 
                 value={blogForms.author} 
                 data-testid='author'
+                placeholder="Author"
               />
             </div>
             <div>
@@ -32,6 +35,7 @@ const FormBlogs = ({Submit,FormChange,blogForms}) => {
                 onChange={FormChange} 
                 value={blogForms.url} 
                 data-testid='url'
+                placeholder="Url"
               />
             </div>
             <button type="submit">

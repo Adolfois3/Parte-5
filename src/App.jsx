@@ -13,15 +13,14 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
   const [formBlogButton, setBlogFormButton] = useState(false)
-
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [blogToDelete, setBlogToDelete] = useState(null);
-
   const [blogForm, setBlogForm] = useState({
     title:'',
     author:'',
     url:'',
   })
+  
       const modalRef = useRef(null)
   useEffect(()=>{
   if(showConfirmModal && modalRef.current){
@@ -61,7 +60,10 @@ const App = () => {
      
       setPassword('')
       setUsername('')
-      setSuccessMessage(`¡Bienvenido, ${users.username}! Has iniciado sesión con éxito.`)
+      setTimeout(() => {
+        setSuccessMessage(`successfully logged in`)
+      }, 5000)
+      
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
@@ -103,7 +105,7 @@ const App = () => {
         author: '',
         url: ''
       })
-      setSuccessMessage(`¡El blog "${newBlog.title}" de ${newBlog.author} se ha añadido con éxito!`)
+      setSuccessMessage(`El blog se ha añadido con exito`)
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
@@ -117,6 +119,7 @@ const App = () => {
       }, 5000)
     }
   }
+
   const likesUpdate = async (blogUpdate)=>{
     try{
       const newLikes = {likes: blogUpdate.likes + 1}
@@ -124,7 +127,6 @@ const App = () => {
       setBlogs(
         blogs.map((blog)=> (blog.id !== blogUpdate.id ? blog : returnedBlog))
       )
-
     }catch(error){
       console.error(error)
       setErrorMessage('Error liking the blog')
@@ -132,8 +134,6 @@ const App = () => {
         setErrorMessage(null)
       },5000)
     }
-
-
   }
 
   const loginForm = () => {
@@ -142,7 +142,7 @@ const App = () => {
         <div>
           <h1>Log in to application</h1>
           {errorMessage && (
-            <div style={{
+            <div data-testid="error-message" style={{
               color: 'red',
               background: 'lightgrey',
               fontSize: '20px',
@@ -155,7 +155,7 @@ const App = () => {
             </div>
           )}
           {successMessage && (
-            <div style={{
+            <div data-testid="success-message"  style={{
               color: 'green',
               background: 'lightgreen',
               fontSize: '20px',
@@ -175,6 +175,8 @@ const App = () => {
                 name="username" 
                 value={username}
                 id="username"
+                data-testid='username'
+                placeholder="username"
                 onChange={({ target }) => setUsername(target.value)}
               />
             </div>
@@ -184,11 +186,13 @@ const App = () => {
                 type="password"
                 id="password"
                 value={password}
+                data-testid='password'
                 onChange={({ target }) => setPassword(target.value)}
                 name="password"
+                placeholder="password"
               />
             </div>
-            <button type="submit">
+            <button name='Log in' type="submit">
               Log in
             </button>
           </form>
@@ -222,7 +226,6 @@ const deleteBlog = async (blogDelete) => {
       setErrorMessage(null);
     }, 5000);
   } finally {
-
     setShowConfirmModal(false);
     setBlogToDelete(null);
   }
@@ -233,8 +236,21 @@ const deleteBlog = async (blogDelete) => {
     const sortedBlog = [...blogs].sort((a,b)=> b.likes - a.likes)
 
     return (
-
           <div>
+            {successMessage &&(
+              <div className='success' style={{
+              color: 'green',
+              background: 'lightgreen',
+              fontSize: '20px',
+              borderStyle: 'solid',
+              borderRadius: '5px',
+              padding: '10px',
+              marginBottom: '10px'
+            }}>
+            {successMessage}
+            </div>
+            )}
+
             <h2>Blogs</h2>
             <div>
               <span>Logged in as: <strong>{user.username}</strong></span>
@@ -244,14 +260,14 @@ const deleteBlog = async (blogDelete) => {
               </button>
               <br />
               <button onClick={()=> setBlogFormButton(true)}>Create new blog</button>
-
-              
             </div>
             {sortedBlog.map(blog =>
-            
-              <Blog key={blog.id} blog={blog}  likes={()=> likesUpdate(blog)} delet={()=> {setBlogToDelete(blog); setShowConfirmModal(true)}} />
-              
+              <Blog key={blog.id} blog={blog} user={user}  likes={()=> likesUpdate(blog)} delet={()=> {setBlogToDelete(blog); setShowConfirmModal(true)}} />
             )}
+
+
+
+
             {showConfirmModal &&(
               <div ref={modalRef}>
               <h3>Confirmar eliminación</h3>
@@ -260,8 +276,8 @@ const deleteBlog = async (blogDelete) => {
               <button onClick={() => setShowConfirmModal(false)}>No</button>
               </div>
             )}
-
           </div>
+          
     )
   }
 

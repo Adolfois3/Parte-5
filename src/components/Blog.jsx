@@ -1,8 +1,12 @@
 import { useState } from "react"
 import PropTypes from "prop-types"
 
-const Blog = ({ blog,likes, delet }) => 
+const Blog = ({ blog,likes, delet, user }) => 
   {const [buttState, setButtState] = useState(false);
+
+    const showDeleteButton ={
+      display: user && user.username === blog.user.username ? '': 'none'
+    }
 
 const blogStyles = {
 paddingTop: 10,
@@ -14,34 +18,43 @@ marginBottom: 5}
 const handleToggle = () => {
 setButtState(!buttState);
 };
+
+
 return (
-<div className='blog-item' style={blogStyles}>
-  <div className='blog-details'>
- <ul>
-    <li>
-              <span className='blog-title'>Title:{blog.title}</span>
-              <button onClick={handleToggle} className='view-button'>
-  {buttState ? 'hide' : 'view'}
-    </button>
-            </li>
-  <li>
-            <span className='blog-author'>Author:{blog.author}</span>
-          </li>
-  </ul>
- </div>
- {/* Solo renderiza este div si buttState es true */}
- {buttState && 
- <div className='blog-extra-details'>
-   <ul>
-  <li><span className='blog-url'>Url: {blog.url}</span></li>
-  <li><span className='blog-likes'>Likes: {blog.likes}</span> <button onClick={likes}>like</button></li>
-   <button onClick={delet}>Eliminar</button>
-  </ul>
-</div>
- }
- </div>
- );
-}
+    <div className='blog-item' style={blogStyles}>
+      <div className='blog-details'>
+        <br />
+        <span className='blog-title'>Title:{blog.title}</span>
+        <br />
+        <span className='blog-author'>Author:{blog.author}</span>
+        <button 
+          data-testid="view-button" 
+          onClick={handleToggle} 
+          className='view-button'
+        >
+          {buttState ? 'hide' : 'view'} 
+        </button>
+      </div>
+      {buttState && (
+        <div className='blog-extra-details'> 
+          <p className='blog-url'>Url: {blog.url}</p>
+          <p className='blog-likes'>
+            Likes: {blog.likes} 
+            <button onClick={likes}>like</button>
+          </p>
+          
+          <button 
+            name="eliminar" 
+            style={showDeleteButton} 
+            onClick={delet}
+          >
+            Eliminar
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 Blog.propTypes = {
 blog: PropTypes.shape({
