@@ -1,52 +1,62 @@
 
-import { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
+import { useState,} from 'react'
 import Blogs from './services/Blogs'
 import Login from './services/Login'
-import  FormBlogs  from './components/FormBlogs'
+import LoginForm from './components/loginForm'
+import { useNotificationDispatch } from './components/notificationValue'
+import NotificationRef from './components/NotificationRef'
+import { NotificationProvider } from './components/notificationValue'
+import {  useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import { AuthProvider, useUserDispatch, useUserState } from './components/reducers/AuthContext'
+import {  Route, Routes } from 'react-router'
+import Users from './components/pages/users'
+import Menu from './components/Menu'
+import Home from './components/pages/Home'
+import UsersId from './components/pages/UsersId'
+import ModuloUsers from './services/ModuloUsers'
+import BlogId from './components/pages/BlogId'
+import { BlogsProvider } from './components/reducers/BlogsContext'
 
-const App = () => {
-  const [blogs, setBlogs] = useState([])
+const AppContent = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
-  const [errorMessage, setErrorMessage] = useState(null)
-  const [successMessage, setSuccessMessage] = useState(null)
-  const [formBlogButton, setBlogFormButton] = useState(false)
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [blogToDelete, setBlogToDelete] = useState(null);
-  const [blogForm, setBlogForm] = useState({
-    title:'',
-    author:'',
-    url:'',
+  const queryClient = useQueryClient()
+
+            const blog = useQuery({
+            queryKey:["blogs"],
+            queryFn:Blogs.getAll,
+            refetchOnWindowFocus: false
+          })
+
+  const usersQuery = useQuery({
+      queryKey: ['users'],
+      queryFn: ModuloUsers.getUsers,
+      refetchOnWindowFocus: false
   })
   
-      const modalRef = useRef(null)
-  useEffect(()=>{
-  if(showConfirmModal && modalRef.current){
-    modalRef.current.scrollIntoView({
-      behavior: 'smooth', 
-      block: 'center'
-    })
-  }
-},[showConfirmModal])
+ 
 
-  // Hook para cargar los blogs al inicio de la aplicación
-  useEffect(() => {
-    Blogs.getAll()
-      .then(blogs => setBlogs(blogs))
-  }, [])
+
+  const notificationDispatch = useNotificationDispatch()
+
+
+   
+
+      //Funcion para manejar las notificaciones
+      const showNotification = (message,type)=>{
+        notificationDispatch({
+          type:'SET',
+          payload:{message: message, type: type}
+        })
+         setTimeout(() => {
+      notificationDispatch({ type: 'CLEAR' }) 
+    }, 5000);
+      }
 
   // Hook para verificar si hay un usuario logueado en localStorage
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      Blogs.setToken(user.token)
-    }
-  }, [])
 
+  const { user } = useUserState()
+  const userDispatch = useUserDispatch()
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -56,234 +66,109 @@ const App = () => {
         'loggedNoteappUser', JSON.stringify(users)
       ) 
       Blogs.setToken(users.token)
-      setUser(users)
-     
+      userDispatch({
+        type:'LOGIN',
+        payload:users
+      })
       setPassword('')
       setUsername('')
-      setTimeout(() => {
-        setSuccessMessage(`successfully logged in`)
-      }, 5000)
-      
-      setTimeout(() => {
-        setSuccessMessage(null)
-      }, 5000)
+      showNotification("Has iniciado sesion correctamente", 'SUCCES')
     } catch(error) {
       console.error(error)
-      setErrorMessage('Error: Credenciales inválidas. Por favor, inténtalo de nuevo.')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+            showNotification('Error: Credenciales invalidas', 'ERROR');
     }
   }
     
 
   const handleLogout = () => {
     window.localStorage.removeItem('loggedNoteappUser')
-    setUser(null)
+    userDispatch({ type: 'LOGOUT'})
     Blogs.setToken(null)
-    setSuccessMessage('¡Has cerrado sesión con éxito!')
-    setTimeout(() => {
-      setSuccessMessage(null)
-    }, 5000)
+    showNotification('Has cerrado sesion correctamente', 'SUCCESS');
   }
-
-  const handleBlogFormChange = (event) => {
-    const { name, value } = event.target
-    setBlogForm(prevData => ({
-      ...prevData,
-      [name]: value
-    }))
+  const mutationLikesQuey = useMutation({
+  mutationFn:Blogs.update, 
+  onSuccess:(data)=>{
+    queryClient.setQueryData(["blogs", (oldBlogs)=>{
+      return oldBlogs.map((blog)=> blog.id === data.id ? data: blog)
+    }])
   }
+})
 
-  const handleBlogSubmit = async (event) => {
-    event.preventDefault()
-    try {
-      const newBlog = await Blogs.create(blogForm)
-      setBlogs(blogs.concat(newBlog))
-      setBlogForm({
-        title: '',
-        author: '',
-        url: ''
-      })
-      setSuccessMessage(`El blog se ha añadido con exito`)
-      setTimeout(() => {
-        setSuccessMessage(null)
-      }, 5000)
-      setBlogFormButton(false)
-
-    } catch (error) {
-      console.error(error)
-      setErrorMessage('Error: No se pudo crear el blog. Asegúrate de que los campos estén completos.')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    }
+// Aprox. Líneas 205-217
+const handleVote = async (blogsUpdate) =>{
+  try{
+    const newLikes = blogsUpdate.likes + 1;
+    const updateObjetc = { likes: newLikes };
+    
+    mutationLikesQuey.mutate({
+      id:blogsUpdate.id,
+      newObject: updateObjetc 
+    })
+    
+    showNotification(`Le diste like al blog ${blogsUpdate.title}`, 'SUCCESS');
+    
+  }catch(error){
+    console.error(error)
+    showNotification(`Ya le diste like al blog ${blogsUpdate.title}`, 'ERROR');
   }
+}
 
-  const likesUpdate = async (blogUpdate)=>{
-    try{
-      const newLikes = {likes: blogUpdate.likes + 1}
-      const returnedBlog = await Blogs.update(blogUpdate.id, newLikes)
-      setBlogs(
-        blogs.map((blog)=> (blog.id !== blogUpdate.id ? blog : returnedBlog))
-      )
-    }catch(error){
-      console.error(error)
-      setErrorMessage('Error liking the blog')
-      setTimeout(()=>{
-        setErrorMessage(null)
-      },5000)
-    }
-  }
+
+
+
 
   const loginForm = () => {
     return (
-      <div>
-        <div>
-          <h1>Log in to application</h1>
-          {errorMessage && (
-            <div data-testid="error-message" style={{
-              color: 'red',
-              background: 'lightgrey',
-              fontSize: '20px',
-              borderStyle: 'solid',
-              borderRadius: '5px',
-              padding: '10px',
-              marginBottom: '10px'
-            }}>
-              {errorMessage}
-            </div>
-          )}
-          {successMessage && (
-            <div data-testid="success-message"  style={{
-              color: 'green',
-              background: 'lightgreen',
-              fontSize: '20px',
-              borderStyle: 'solid',
-              borderRadius: '5px',
-              padding: '10px',
-              marginBottom: '10px'
-            }}>
-              {successMessage}
-            </div>
-          )}
-          <form onSubmit={handleLogin}>
-            <div>
-              <label htmlFor="username">Username</label>
-              <input 
-                type="text"
-                name="username" 
-                value={username}
-                id="username"
-                data-testid='username'
-                placeholder="username"
-                onChange={({ target }) => setUsername(target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password">Password</label>
-              <input 
-                type="password"
-                id="password"
-                value={password}
-                data-testid='password'
-                onChange={({ target }) => setPassword(target.value)}
-                name="password"
-                placeholder="password"
-              />
-            </div>
-            <button name='Log in' type="submit">
-              Log in
-            </button>
-          </form>
-        </div>
-      </div>
+      <LoginForm 
+      handleLogin={handleLogin}
+      username={username}
+        password={password}
+        setUsername={setUsername}
+        setPassword={setPassword} />
     )
   }
 
-    if(formBlogButton){
-      return (
-        <div>
-        <FormBlogs Submit={handleBlogSubmit} FormChange={handleBlogFormChange} blogForms={blogForm}  ></FormBlogs>
-        <button onClick={()=> setBlogFormButton(false)}>Cancel</button>
-        </div>
-      )
-    }
-
-const deleteBlog = async (blogDelete) => {
-  try {
-
-    await Blogs.deleteBlog(blogDelete.id);
-    setBlogs(blogs.filter(blog => blog.id !== blogDelete.id));
-    setSuccessMessage('Se eliminó el blog correctamente');
-    setTimeout(() => {
-      setSuccessMessage(null);
-    }, 5000);
-  } catch (error) {
-    console.error(error)
-    console.log('Error al eliminar el blog');
-    setTimeout(() => {
-      setErrorMessage(null);
-    }, 5000);
-  } finally {
-    setShowConfirmModal(false);
-    setBlogToDelete(null);
-  }
-};
-
-
-  const getBlog = () => {
-    const sortedBlog = [...blogs].sort((a,b)=> b.likes - a.likes)
-
-    return (
-          <div>
-            {successMessage &&(
-              <div className='success' style={{
-              color: 'green',
-              background: 'lightgreen',
-              fontSize: '20px',
-              borderStyle: 'solid',
-              borderRadius: '5px',
-              padding: '10px',
-              marginBottom: '10px'
-            }}>
-            {successMessage}
-            </div>
-            )}
-
-            <h2>Blogs</h2>
-            <div>
-              <span>Logged in as: <strong>{user.username}</strong></span>
-              
-              <button onClick={handleLogout}>
-                Log out
-              </button>
-              <br />
-              <button onClick={()=> setBlogFormButton(true)}>Create new blog</button>
-            </div>
-            {sortedBlog.map(blog =>
-              <Blog key={blog.id} blog={blog} user={user}  likes={()=> likesUpdate(blog)} delet={()=> {setBlogToDelete(blog); setShowConfirmModal(true)}} />
-            )}
-
-
-
-
-            {showConfirmModal &&(
-              <div ref={modalRef}>
-              <h3>Confirmar eliminación</h3>
-              <p>¿Estás seguro que quieres eliminar el blog {blogToDelete.title}?</p>
-              <button style={{ marginRight: '10px' }} onClick={() => deleteBlog(blogToDelete)}>Sí</button>
-              <button onClick={() => setShowConfirmModal(false)}>No</button>
-              </div>
-            )}
-          </div>
-          
+  if(user === null){
+    return(
+      <>
+      <NotificationRef/>
+      {loginForm()}
+      </>
     )
   }
+
+  const usersArray = usersQuery.data || []
+  const blogArraysId = blog.data || []
 
   return (
     <>
-      {user === null ? loginForm() : getBlog()}
+    <BlogsProvider handleVote={handleVote}>
+    <Menu
+     user={user} 
+     handleLogout={handleLogout}/>
+     <Routes>
+      <Route path='/' element={<Home/>}></Route>
+      <Route path='/:id' element={<BlogId blogs={blogArraysId}/>}></Route>
+      <Route path='/users' element={<Users/>}></Route>
+      <Route path='/users/:id' element={<UsersId users={usersArray} />}></Route>
+     </Routes>
+     </BlogsProvider>
+    </>
+  )
+}
+
+
+
+
+const App = ()=>{
+  return(
+    <>
+    <AuthProvider>
+    <NotificationProvider>
+    <AppContent/>
+    </NotificationProvider>
+    </AuthProvider>
     </>
   )
 }

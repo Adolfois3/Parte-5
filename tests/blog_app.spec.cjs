@@ -19,7 +19,6 @@ describe('Blog app', () => {
                 password: 'test123456'
             }
         });
-
         // Asegura que el usuario se haya creado correctamente (status 201)
         await expect(createUserResponse.status()).toBe(201);
 
