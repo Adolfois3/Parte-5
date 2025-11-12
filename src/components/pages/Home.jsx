@@ -80,6 +80,7 @@ const Home = () => {
       handleBlogSubmitQueryMutate.mutate(blogForm)
       showNotification('El blog se ha añadido con exito', 'SUCCESS');
       setBlogFormButton(false)
+      
 
     } catch (error) {
       console.error(error)

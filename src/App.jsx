@@ -39,9 +39,6 @@ const AppContent = () => {
 
   const notificationDispatch = useNotificationDispatch()
 
-
-   
-
       //Funcion para manejar las notificaciones
       const showNotification = (message,type)=>{
         notificationDispatch({
