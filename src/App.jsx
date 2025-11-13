@@ -125,7 +125,7 @@ const handleVote = async (blogsUpdate) =>{
         setPassword={setPassword} />
     )
   }
-
+  
   if(user === null){
     return(
       <>

@@ -173,14 +173,14 @@ const handleVote = async (blogsUpdate) =>{
         Submit={handleBlogSubmit} 
         FormChange={handleBlogFormChange} 
         blogForms={blogForm}  ></FormBlogs>
-        <button onClick={()=> setBlogFormButton(false)}>Cancel</button>
+        <button className="btn btn-danger" onClick={()=> setBlogFormButton(false)}>Cancel</button>
         </div>
       )
     }
 
     return (
         <div>
-            <button onClick={()=> setBlogFormButton(true)}>Create new blog</button>
+            <button className="btn btn-info" onClick={()=> setBlogFormButton(true)}>Create new blog</button>
             <h1>Blogs</h1>
             {sortedBlog.map(blog =>
             <Blog key={blog.id} 

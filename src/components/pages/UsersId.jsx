@@ -21,7 +21,7 @@ const UsersId = ({users}) => {
     }
   return (
     <div>
-        <h3>{use.username}</h3>
+        <h3>Username: {use.username}</h3>
         {use.blogs.map( blog =>(
             <li key={blog.id}> -Title: {blog.title}</li>
         ))}

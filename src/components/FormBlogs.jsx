@@ -1,9 +1,11 @@
+import '../components/pages/styles/createBlogs.css'
+
 const FormBlogs = ({Submit,FormChange,blogForms}) => {
   return (
       <div>
         <div>
           <h2>Create a New Blog</h2>
-          <form onSubmit={Submit}>
+          <form className="form-group" onSubmit={Submit}>
             <div>
               <label htmlFor="title">Title</label>
               <input 
@@ -13,7 +15,7 @@ const FormBlogs = ({Submit,FormChange,blogForms}) => {
                 value={blogForms.title} 
                 data-testid='title'
                 placeholder="Title"
-                
+                className="form-control"
               />
             </div>
             <div>
@@ -25,6 +27,7 @@ const FormBlogs = ({Submit,FormChange,blogForms}) => {
                 value={blogForms.author} 
                 data-testid='author'
                 placeholder="Author"
+                className="form-control"
               />
             </div>
             <div>
@@ -36,9 +39,10 @@ const FormBlogs = ({Submit,FormChange,blogForms}) => {
                 value={blogForms.url} 
                 data-testid='url'
                 placeholder="Url"
+                className="form-control"
               />
             </div>
-            <button type="submit">
+            <button class="btn btn-primary" type="submit">
               Create
             </button>
           </form>

@@ -1,6 +1,7 @@
 import React from 'react'
 import NotificationRef from './NotificationRef'
 import { Link } from 'react-router'
+import './pages/styles/navbar.css'
 
 const Menu = ({user,handleLogout,setBlogFormButton}) => {
 
@@ -22,21 +23,21 @@ background: "#A6A6A6",
 }
   return (
     <>
-    <nav style={style}>
+    <nav className='navbar'>
         <div>
               <NotificationRef/>
             </div>
-            <div>
+            <div class="container-fluid">
               <div style={inlineGroupStyle}>
               <span>Logged in as: <strong>{user.username}</strong></span>
-              <button onClick={handleLogout}>
+              <button className='btn btn-success' onClick={handleLogout}>
                 Log out
               </button>
               </div>
-              <div style={inlineGroupStyle}>
+              <div  style={inlineGroupStyle}>
                 
-                <Link to={"/"}>Blogs</Link>
-                <Link to={"/users"}>Users</Link>
+                <Link className="btn btn-secondary" to={"/"}>Blogs</Link>
+                <Link className="btn btn-secondary " to={"/users"}>Users</Link>
                 
               </div>
               <br />

@@ -4,6 +4,7 @@ import { useBlogs } from '../reducers/BlogsContext'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query' 
 import { useParams } from 'react-router'
 import Blogs from '../../services/Blogs'
+import './styles/blogId.css'
 
 const BlogId = () => {
     const [commentInput, setCommentInput] = useState('')
@@ -62,18 +63,19 @@ const BlogId = () => {
 
     
     return (
-<div>
+<div className='content-blog'>
         <h2>Title: {blog.title}</h2>
         <p>Author: <strong>{blog.author}</strong></p>
         <p>URL: <a href={blog.url} target="_blank" rel="noopener noreferrer">{blog.url}</a></p>
     
         <p>
             {blog.likes} likes 
-            <button 
+            <button
+            className='button-likes' 
                 onClick={() => handleVote(blog)}
                 style={{ marginLeft: '10px' }}
             >
-                Like
+                ❤️
             </button>
         </p>
         
@@ -81,10 +83,10 @@ const BlogId = () => {
         <div> 
             <h3>Comments</h3>
             <form onSubmit={handleCommentSubmit}>
-                <input type="text" value={commentInput} onChange={onChange} />
-                <button disabled={mutationComment.isPending}>
+                <input className='input-comment' style={{margin:"10px"}} type="text" value={commentInput} onChange={onChange} />
+                <button className='btn btn-secondary' disabled={mutationComment.isPending}>
                     {mutationComment.isPending ? 'Enviando...': 'add comment'}
-                </button>
+                </button >
             </form>
             <ul>
                 {commentData.map((c)=>( 
